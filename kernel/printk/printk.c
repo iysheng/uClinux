@@ -1430,6 +1430,30 @@ SYSCALL_DEFINE3(syslog, int, type, char __user *, buf, int, len)
  * log_buf[start] to log_buf[end - 1].
  * The console_lock must be held.
  */
+#define YYFISH_BOARD
+#ifdef YYFISH_BOARD
+#define YYFISH_PUT(x)  do {*(volatile int *)(0x40011028) = x;} while(0)
+typedef volatile unsigned int * YYFISH_PTR;
+void yyfish_put(char * buf, int buf_len)
+{
+    int i = 0;
+    YYFISH_PTR usart1_isr = (YYFISH_PTR)0x4001101c;
+    for (; i<buf_len ; i++) {
+        if (buf[i] == '\n') {            
+            YYFISH_PUT('\r');
+            while(0 == (*usart1_isr & 1 << 6));//wait for transmit complete
+        }
+        YYFISH_PUT(buf[i]);
+        while(0 == (*usart1_isr & 1 << 6));//wait for transmit complete
+    }
+}
+static void call_console_drivers(int level,
+				 const char *ext_text, size_t ext_len,
+				 const char *text, size_t len)
+{
+    yyfish_put((char *)text, len); // need modify after commented by <iysheng@163.com>
+}
+#else
 static void call_console_drivers(int level,
 				 const char *ext_text, size_t ext_len,
 				 const char *text, size_t len)
@@ -1459,6 +1483,7 @@ static void call_console_drivers(int level,
 			con->write(con, text, len);
 	}
 }
+#endif
 /*
  * Zap console related locks when oopsing.
  * To leave time for slow consoles to print a full oops,
