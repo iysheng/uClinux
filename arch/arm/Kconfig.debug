@@ -1213,6 +1213,17 @@ choice
 		  This option is preferred over the platform specific
 		  options; the platform specific options are deprecated
 		  and will be soon removed.
+	
+	config DEBUG_LL_UART_STM32F7
+		bool "Kernel low-level debugging via stm32f7xx UART"
+		help
+		  Say Y here if you wish the debug print routes to direct
+		  their output to an stm32f7xx UART.  You can use this option
+		  to provide the stm32f7xx UART base addr early print.
+
+		  This option is preferred over the platform specific
+		  options; the platform specific options are deprecated
+		  and will be soon removed.
 
 	config DEBUG_LL_UART_EFM32
 		bool "Kernel low-level debugging via efm32 UART"
@@ -1304,6 +1315,7 @@ config DEBUG_SIRFSOC_UART
 config DEBUG_LL_INCLUDE
 	string
 	default "debug/sa1100.S" if DEBUG_SA1100
+	default "debug/stm32f7.S" if DEBUG_LL_UART_STM32F7
 	default "debug/8250.S" if DEBUG_LL_UART_8250 || DEBUG_UART_8250
 	default "debug/at91.S" if DEBUG_AT91_UART
 	default "debug/asm9260.S" if DEBUG_ASM9260_UART
@@ -1368,6 +1380,11 @@ config DEBUG_UART_8250
 config DEBUG_UART_BCM63XX
 	def_bool ARCH_BCM_63XX
 
+config DEBUG_STM32F7_UART_PHYS
+	hex "Physical base address of debug UART"
+	default 0x40011000 if DEBUG_LL_UART_STM32F7
+	depends on DEBUG_LL_UART_STM32F7
+ 
 config DEBUG_UART_PHYS
 	hex "Physical base address of debug UART"
 	default 0x00100a00 if DEBUG_NETX_UART

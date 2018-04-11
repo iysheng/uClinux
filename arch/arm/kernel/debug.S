@@ -80,14 +80,17 @@ hexbuf:		.space 16
 ENTRY(printascii)
 		addruart_current r3, r1, r2
 		b	2f
+		
 1:		waituart r2, r3
 		senduart r1, r3
 		busyuart r2, r3
+		
 		teq	r1, #'\n'
 		moveq	r1, #'\r'
 		beq	1b
 2:		teq	r0, #0
-		ldrneb	r1, [r0], #1
+
+        ldrneb	r1, [r0], #1 /*if [r0]!=0;then r1=(byte)[r0];r0++;<iysheng@163.com>*/
 		teqne	r1, #0
 		bne	1b
 		ret	lr
