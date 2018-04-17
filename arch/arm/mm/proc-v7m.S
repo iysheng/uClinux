@@ -81,11 +81,12 @@ ENDPROC(cpu_v7m_do_resume)
  *	This should be able to cover all ARMv7-M cores.
  */
 __v7m_setup:
+    
 	@ Configure the vector table base address
 	ldr	r0, =BASEADDR_V7M_SCB
 	ldr	r12, =vector_table
 	str	r12, [r0, V7M_SCB_VTOR]
-
+    
 	@ enable UsageFault, BusFault and MemManage fault.
 	ldr	r5, [r0, #V7M_SCB_SHCSR]
 	orr	r5, #(V7M_SCB_SHCSR_USGFAULTENA | V7M_SCB_SHCSR_BUSFAULTENA | V7M_SCB_SHCSR_MEMFAULTENA)
@@ -104,22 +105,25 @@ __v7m_setup:
 	mov	r6, lr			@ save LR
 	mov	r7, sp			@ save SP
 	ldr	sp, =__v7m_setup_stack_top
-	cpsie	i
+	dsb @ ensure data Synchronization Barrier <iysheng@163.com>
+	cpsie	i   @ enable interrupt
 	svc	#0
-1:	cpsid	i
+    
+1:	cpsid	i @disable interrupt
+    
 	str	r5, [r12, #11 * 4]	@ restore the original SVC vector entry
 	mov	lr, r6			@ restore LR
 	mov	sp, r7			@ restore SP
-
+    
 	@ Special-purpose control register
 	mov	r1, #1
 	msr	control, r1		@ Thread mode has unpriviledged access
 
-	@ Configure the System Control Register to ensure 8-byte stack alignment
+    @ Configure the System Control Register to ensure 8-byte stack alignment
 	@ Note the STKALIGN bit is either RW or RAO.
-	ldr	r12, [r0, V7M_SCB_CCR]	@ system control register
-	orr	r12, #V7M_SCB_CCR_STKALIGN
-	str	r12, [r0, V7M_SCB_CCR]
+	@ ldr	r12, [r0, V7M_SCB_CCR]	@ system control register
+	@ orr	r12, #V7M_SCB_CCR_STKALIGN @ bit 9 of V7M_SCB_CCR if read only 
+	@ str	r12, [r0, V7M_SCB_CCR]
 	ret	lr
 ENDPROC(__v7m_setup)
 

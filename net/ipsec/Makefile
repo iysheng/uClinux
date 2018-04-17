@@ -1,4 +1,4 @@
-OPENSWANSRCDIR := $(ROOTDIR)/openswan
+OPENSWANSRCDIR ?= ../openswan
 
 EXTRA_CFLAGS += -I$(OPENSWANSRCDIR) -I$(OPENSWANSRCDIR)/openswan/lib \
 			-I$(OPENSWANSRCDIR)/linux/net/ipsec \
