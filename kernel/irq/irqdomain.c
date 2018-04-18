@@ -586,7 +586,6 @@ unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec)
 
 	if (irq_domain_translate(domain, fwspec, &hwirq, &type))
 		return 0;
-
 	if (irq_domain_is_hierarchy(domain)) {
 		/*
 		 * If we've already configured this interrupt,

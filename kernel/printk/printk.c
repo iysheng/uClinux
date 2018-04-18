@@ -2506,6 +2506,7 @@ void register_console(struct console *newcon)
 	 *	See if this console matches one we selected on
 	 *	the command line.
 	 */
+	printk("iysheng %s 0\n", __func__);
 	for (i = 0, c = console_cmdline;
 	     i < MAX_CMDLINECONSOLES && c->name[0];
 	     i++, c++) {
@@ -2513,6 +2514,7 @@ void register_console(struct console *newcon)
 		    newcon->match(newcon, c->name, c->index, c->options) != 0) {
 			/* default matching */
 			BUILD_BUG_ON(sizeof(c->name) != sizeof(newcon->name));
+            printk("iysheng %s 1\n", __func__);
 			if (strcmp(c->name, newcon->name) != 0)
 				continue;
 			if (newcon->index >= 0 &&
@@ -2536,7 +2538,7 @@ void register_console(struct console *newcon)
 		}
 		break;
 	}
-
+    printk("iysheng %s 2\n", __func__);
 	if (!(newcon->flags & CON_ENABLED))
 		return;
 

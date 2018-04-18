@@ -682,11 +682,13 @@ static void clk_core_disable(struct clk_core *core)
 
 	if (--core->enable_count > 0)
 		return;
+    printk("iysheng %s 000\n", __func__);
 
 	trace_clk_disable(core);
 
 	if (core->ops->disable)
 		core->ops->disable(core->hw);
+    printk("iysheng %s 111\n", __func__);
 
 	trace_clk_disable_complete(core);
 
@@ -713,8 +715,11 @@ void clk_disable(struct clk *clk)
 		return;
 
 	flags = clk_enable_lock();
+    printk("iysheng %s 000\n", __func__);
 	clk_core_disable(clk->core);
+    printk("iysheng %s 001\n", __func__);
 	clk_enable_unlock(flags);
+    printk("iysheng %s 002\n", __func__);
 }
 EXPORT_SYMBOL_GPL(clk_disable);
 

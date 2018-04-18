@@ -284,7 +284,7 @@ int irq_alloc_domain_generic_chips(struct irq_domain *d, int irqs_per_chip,
 
 	if (d->gc)
 		return -EBUSY;
-
+    /* numchips = 4 <iysheng@163.com >*/
 	numchips = DIV_ROUND_UP(d->revmap_size, irqs_per_chip);
 	if (!numchips)
 		return -EINVAL;
@@ -308,6 +308,8 @@ int irq_alloc_domain_generic_chips(struct irq_domain *d, int irqs_per_chip,
 	for (i = 0; i < numchips; i++) {
 		/* Store the pointer to the generic chip */
 		dgc->gc[i] = gc = tmp;
+        /* name="nvic_irq" num_ct=1 irqs_per_chip=32 handler=handle_fasteoi_irq*/
+        /* <iysheng@163.com> */
 		irq_init_generic_chip(gc, name, num_ct, i * irqs_per_chip,
 				      NULL, handler);
 

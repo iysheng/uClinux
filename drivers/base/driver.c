@@ -159,6 +159,7 @@ int driver_register(struct device_driver *drv)
 			"bus_type methods\n", drv->name);
 
 	other = driver_find(drv->name, drv->bus);
+    printk(KERN_ALERT "iysheng %s ***222*** %s\n", __func__, drv->name);
 	if (other) {
 		printk(KERN_ERR "Error: Driver '%s' is already registered, "
 			"aborting...\n", drv->name);
@@ -166,13 +167,16 @@ int driver_register(struct device_driver *drv)
 	}
 
 	ret = bus_add_driver(drv);
+    printk(KERN_ALERT "iysheng %s ***333*** %s\n", __func__, drv->name);
 	if (ret)
 		return ret;
 	ret = driver_add_groups(drv, drv->groups);
+    printk(KERN_ALERT "iysheng %s ***444*** %s\n", __func__, drv->name);
 	if (ret) {
 		bus_remove_driver(drv);
 		return ret;
 	}
+    printk(KERN_ALERT "iysheng %s ***555*** %s\n", __func__, drv->name);
 	kobject_uevent(&drv->p->kobj, KOBJ_ADD);
 
 	return ret;

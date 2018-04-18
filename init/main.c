@@ -494,11 +494,12 @@ static void __init mm_init(void)
 	ioremap_huge_init();
 }
 
+extern void printascii(const char *);
 asmlinkage __visible void __init start_kernel(void)
 {
 	char *command_line;
 	char *after_dashes;
-
+    printascii("iysheng *********start_kernel*********\n");
 	/*
 	 * Need to run as early as possible, to initialize the
 	 * lockdep hash:
@@ -596,10 +597,11 @@ asmlinkage __visible void __init start_kernel(void)
 	call_function_init();
 	WARN(!irqs_disabled(), "Interrupts were enabled early\n");
 	early_boot_irqs_disabled = false;
-	local_irq_enable();
+    printk("iysheng %s 00\n", __func__);
+    local_irq_enable();
 
 	kmem_cache_init_late();
-
+    printk("iysheng %s 11\n", __func__);
 	/*
 	 * HACK ALERT! This is early. We're enabling the console before
 	 * we've done PCI setups etc, and console_init() must be aware of

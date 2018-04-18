@@ -44,6 +44,7 @@ asmlinkage void __exception_irq_entry
 nvic_handle_irq(irq_hw_number_t hwirq, struct pt_regs *regs)
 {
 	unsigned int irq = irq_linear_revmap(nvic_irq_domain, hwirq);
+    //printk("iysheng %s irq=%u\n", __func__, irq);
 
 	handle_IRQ(irq, regs);
 }
@@ -89,16 +90,16 @@ static int __init nvic_of_init(struct device_node *node,
 	unsigned int clr = IRQ_NOREQUEST | IRQ_NOPROBE | IRQ_NOAUTOEN;
 	unsigned int irqs, i, ret, numbanks;
 	void __iomem *nvic_base;
-
+    /* numbanks = 4 <iysheng@163.com> stm32f767igt */
 	numbanks = (readl_relaxed(V7M_SCS_ICTR) &
 		    V7M_SCS_ICTR_INTLINESNUM_MASK) + 1;
-
+    /* nvic_base = 0xe000e100 <iysheng@163.com> stm32f767igt */
 	nvic_base = of_iomap(node, 0);
 	if (!nvic_base) {
 		pr_warn("unable to map nvic registers\n");
 		return -ENOMEM;
 	}
-
+    /* numbanks = 128 <iysheng@163.com> stm32f767igt */
 	irqs = numbanks * 32;
 	if (irqs > NVIC_MAX_IRQ)
 		irqs = NVIC_MAX_IRQ;

@@ -47,7 +47,6 @@ static void clk_gate_endisable(struct clk_hw *hw, int enable)
 	int set = gate->flags & CLK_GATE_SET_TO_DISABLE ? 1 : 0;
 	unsigned long uninitialized_var(flags);
 	u32 reg;
-
 	set ^= enable;
 
 	if (gate->lock)
@@ -67,11 +66,10 @@ static void clk_gate_endisable(struct clk_hw *hw, int enable)
 		else
 			reg &= ~BIT(gate->bit_idx);
 	}
-
 	clk_writel(reg, gate->reg);
-
-	if (gate->lock)
+	if (gate->lock) {
 		spin_unlock_irqrestore(gate->lock, flags);
+    }
 	else
 		__release(gate->lock);
 }

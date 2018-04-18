@@ -286,7 +286,7 @@ static int really_probe(struct device *dev, struct device_driver *drv)
 	WARN_ON(!list_empty(&dev->devres_head));
 
 	dev->driver = drv;
-
+    printk("iysheng %s\n", __func__);
 	/* If using pinctrl, bind pins now before probing */
 	ret = pinctrl_bind_pins(dev);
 	if (ret)
@@ -415,6 +415,7 @@ EXPORT_SYMBOL_GPL(wait_for_device_probe);
 int driver_probe_device(struct device_driver *drv, struct device *dev)
 {
 	int ret = 0;
+    printk("iysheng %s\n", __func__);
 
 	if (!device_is_registered(dev))
 		return -ENODEV;

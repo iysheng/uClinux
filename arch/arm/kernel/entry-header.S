@@ -202,7 +202,7 @@
 	@ IRQs already off
 #ifdef CONFIG_TRACE_IRQFLAGS
 	@ The parent context IRQs must have been enabled to get here in
-	@ the first place, so there's no point checking the PSR I bit.
+	@ the first place, so there is no point checking the PSR I bit.
 	bl	trace_hardirqs_on
 #endif
 	.else

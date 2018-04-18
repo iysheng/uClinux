@@ -304,15 +304,20 @@ int bus_for_each_dev(struct bus_type *bus, struct device *start,
 	struct klist_iter i;
 	struct device *dev;
 	int error = 0;
+    printk("iysheng %s\n", __func__);
 
 	if (!bus || !bus->p)
 		return -EINVAL;
-
+    
 	klist_iter_init_node(&bus->p->klist_devices, &i,
 			     (start ? &start->p->knode_bus : NULL));
-	while ((dev = next_device(&i)) && !error)
+	while ((dev = next_device(&i)) && !error) {
 		error = fn(dev, data);
+        printk("iysheng %s 000 %d\n", __func__, error);
+       }
+    printk("iysheng %s 111 %s\n", __func__, dev->driver->name);
 	klist_iter_exit(&i);
+    printk("iysheng %s 222\n", __func__);
 	return error;
 }
 EXPORT_SYMBOL_GPL(bus_for_each_dev);
@@ -695,6 +700,7 @@ int bus_add_driver(struct device_driver *drv)
 	priv->kobj.kset = bus->p->drivers_kset;
 	error = kobject_init_and_add(&priv->kobj, &driver_ktype, NULL,
 				     "%s", drv->name);
+    printk(KERN_ALERT "iysheng %s ***111\n", __func__);
 	if (error)
 		goto out_unregister;
 
@@ -705,11 +711,14 @@ int bus_add_driver(struct device_driver *drv)
 				drv->bus->name, drv->name);
 			async_schedule(driver_attach_async, drv);
 		} else {
+            printk(KERN_ALERT "iysheng %s ***222\n", __func__);
 			error = driver_attach(drv);
+            printk(KERN_ALERT "iysheng %s ***333\n", __func__);
 			if (error)
 				goto out_unregister;
 		}
 	}
+    printk(KERN_ALERT "iysheng %s ***444\n", __func__);
 	module_add_driver(drv->owner, drv);
 
 	error = driver_create_file(drv, &driver_attr_uevent);

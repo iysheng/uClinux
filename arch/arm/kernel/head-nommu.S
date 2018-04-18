@@ -51,7 +51,6 @@ ENTRY(stext)
  THUMB(	.thumb			)	@ switch to Thumb now.
  THUMB(1:			)
 #endif
-
 	setmode	PSR_F_BIT | PSR_I_BIT | SVC_MODE, r9 @ ensure svc mode
 						@ and irqs disabled
 #if defined(CONFIG_CPU_CP15)
@@ -82,6 +81,7 @@ ENTRY(stext)
 	ldr	r12, [r10, #PROCINFO_INITFUNC]
 	add	r12, r12, r10
 	ret	r12
+	
 1:	bl	__after_proc_init
 	b	__mmap_switched
 ENDPROC(stext)

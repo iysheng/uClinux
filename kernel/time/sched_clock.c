@@ -241,7 +241,6 @@ void __init sched_clock_postinit(void)
 		sched_clock_register(jiffy_sched_clock_read, BITS_PER_LONG, HZ);
 
 	update_sched_clock();
-
 	/*
 	 * Start the timer to keep sched_clock() properly updated and
 	 * sets the initial epoch.

@@ -70,7 +70,7 @@ __irq_entry:
 2:
 	@ registers r0-r3 and r12 are automatically restored on exception
 	@ return. r4-r7 were not clobbered in v7m_exception_entry so for
-	@ correctness they don't need to be restored. So only r8-r11 must be
+	@ correctness they do not need to be restored. So only r8-r11 must be
 	@ restored here. The easiest way to do so is to restore r0-r7, too.
 	ldmia	sp!, {r0-r11}
 	add	sp, #S_FRAME_SIZE-S_IP
@@ -90,6 +90,16 @@ __pendsv_entry:
 	mov	why, #0
 	b	ret_to_user
 ENDPROC(__pendsv_entry)
+
+__systick_entry:
+    v7m_exception_entry
+    ldr r2, =0x40022014
+    ldr r0, [r2]
+    eor r1, r0, #0x800
+    str r1, [r2]
+    cpsie	i
+	bx	lr
+ENDPROC(__systick_entry)
 
 /*
  * Register switch for ARMv7-M processors.
@@ -142,7 +152,7 @@ ENTRY(vector_table)
 	.long	__invalid_entry		@ 12 - Debug Monitor
 	.long	__invalid_entry		@ 13 - Reserved
 	.long	__pendsv_entry		@ 14 - PendSV
-	.long	__invalid_entry		@ 15 - SysTick
+	.long	__systick_entry		@ 15 - SysTick
 	.rept	CONFIG_CPU_V7M_NUM_IRQ
 	.long	__irq_entry		@ External Interrupts
 	.endr

@@ -19,7 +19,7 @@ case $1 in
 	cp -v $DTB_SRC_NAME $TFTP_PATH/$DTB_NAME ; shift ;;
 	s) cp -v $TARGET_NAME $SD_PATH ;
 	cp -v $DTB_SRC_NAME $SD_PATH/$DTB_NAME ; 
-	sudo umount $SD_PATH ; sudo umount /dev/sdc2 ; shift ;;
+	sudo umount $SD_PATH ; sudo umount /dev/sdb2 ; shift ;;
 	*)
 	usage break;;
 esac

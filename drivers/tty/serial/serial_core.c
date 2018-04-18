@@ -1879,7 +1879,7 @@ void
 uart_parse_options(char *options, int *baud, int *parity, int *bits, int *flow)
 {
 	char *s = options;
-
+    
 	*baud = simple_strtoul(s, NULL, 10);
 	while (*s >= '0' && *s <= '9')
 		s++;
@@ -1969,14 +1969,16 @@ uart_set_options(struct uart_port *port, struct console *co,
 
 	if (flow == 'r')
 		termios.c_cflag |= CRTSCTS;
-
+    printk("iysheng %s c_cflag=%08x bits=%d parity=%c baud=%d\n", 
+        __func__, termios.c_cflag, bits, parity, baud);
 	/*
 	 * some uarts on other side don't support no flow control.
 	 * So we set * DTR in host uart to make them happy
 	 */
 	port->mctrl |= TIOCM_DTR;
-
+    printk("iysheng %s 0\n", __func__);
 	port->ops->set_termios(port, &termios, &dummy);
+    printk("iysheng %s 1\n", __func__);
 	/*
 	 * Allow the setting of the UART parameters with a NULL console
 	 * too:
@@ -2239,7 +2241,7 @@ uart_configure_port(struct uart_driver *drv, struct uart_state *state,
 		uart_report_port(drv, port);
 
 		/* Power up port for set_mctrl() */
-		uart_change_pm(state, UART_PM_STATE_ON);
+		uart_change_pm(state, UART_PM_STATE_ON);//iysheng@163.com
 
 		/*
 		 * Ensure that the modem control lines are de-activated.
@@ -2249,7 +2251,7 @@ uart_configure_port(struct uart_driver *drv, struct uart_state *state,
 		spin_lock_irqsave(&port->lock, flags);
 		port->ops->set_mctrl(port, port->mctrl & TIOCM_DTR);
 		spin_unlock_irqrestore(&port->lock, flags);
-
+        printk("iysheng %s 0\n", __func__);
 		/*
 		 * If this driver supports console, and it hasn't been
 		 * successfully registered yet, try to re-register it.
@@ -2257,13 +2259,13 @@ uart_configure_port(struct uart_driver *drv, struct uart_state *state,
 		 */
 		if (port->cons && !(port->cons->flags & CON_ENABLED))
 			register_console(port->cons);
-
+        printk("iysheng %s 1\n", __func__);
 		/*
 		 * Power down all ports by default, except the
 		 * console if we have one.
 		 */
 		if (!uart_console(port))
-			uart_change_pm(state, UART_PM_STATE_OFF);
+			uart_change_pm(state, UART_PM_STATE_OFF); //iysheng@163.com
 	}
 }
 

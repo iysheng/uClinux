@@ -343,7 +343,7 @@ int of_irq_parse_one(struct device_node *device, int index, struct of_phandle_ar
 	out_irq->np = p;
 	out_irq->args_count = intsize;
 	for (i = 0; i < intsize; i++)
-		out_irq->args[i] = be32_to_cpup(intspec++);
+		out_irq->args[i] = be32_to_cpup(intspec++);//out_irq->args[0]=50 <iysheng@163.com>
 
 	/* Check if there are any interrupt-map translations to process */
 	res = of_irq_parse_raw(addr, out_irq);

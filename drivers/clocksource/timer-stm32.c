@@ -77,11 +77,9 @@ static int stm32_clock_event_set_next_event(unsigned long evt,
 static irqreturn_t stm32_clock_event_handler(int irq, void *dev_id)
 {
 	struct stm32_clock_event_ddata *data = dev_id;
-
 	writel_relaxed(0, data->base + TIM_SR);
-
-	data->evtdev.event_handler(&data->evtdev);
-
+    if (data->evtdev.event_handler)
+	    data->evtdev.event_handler(&data->evtdev);
 	return IRQ_HANDLED;
 }
 
@@ -158,7 +156,7 @@ static void __init stm32_clockevent_init(struct device_node *np)
 	writel_relaxed(0, data->base + TIM_SR);
 
 	data->periodic_top = DIV_ROUND_CLOSEST(rate, prescaler * HZ);
-
+    printk("iysheng %s rate=%lu periodic_top=%u\n", __func__, rate, data->periodic_top);
 	clockevents_config_and_register(&data->evtdev,
 					DIV_ROUND_CLOSEST(rate, prescaler),
 					0x1, max_delta);
