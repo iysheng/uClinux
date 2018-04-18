@@ -29,7 +29,20 @@
 
 #define DRIVER_NAME "stm32-usart"
 
+#define CONFIG_STM32F7
 /* Register offsets */
+#ifdef CONFIG_STM32F7
+#define USART_SR		0x1c
+#define USART_DR_REC	0x24
+#define USART_DR		0x28
+
+#define USART_CR1		0x00
+#define USART_CR2		0x04
+#define USART_CR3		0x08
+#define USART_BRR		0x0c
+
+#define USART_GTPR		0x10
+#else
 #define USART_SR		0x00
 #define USART_DR		0x04
 #define USART_BRR		0x08
@@ -37,6 +50,7 @@
 #define USART_CR2		0x10
 #define USART_CR3		0x14
 #define USART_GTPR		0x18
+#endif
 
 /* USART_SR */
 #define USART_SR_PE		BIT(0)
@@ -76,7 +90,8 @@
 #define USART_CR1_PCE		BIT(10)
 #define USART_CR1_WAKE		BIT(11)
 #define USART_CR1_M		BIT(12)
-#define USART_CR1_UE		BIT(13)
+#define USART_CR1_UE		BIT(0)//iysheng@163.com
+//#define USART_CR1_UE		BIT(13)
 #define USART_CR1_OVER8		BIT(15)
 #define USART_CR1_IE_MASK	GENMASK(8, 4)
 
@@ -160,7 +175,11 @@ static void stm32_receive_chars(struct uart_port *port)
 
 	while ((sr = readl_relaxed(port->membase + USART_SR)) & USART_SR_RXNE) {
 		sr |= USART_SR_DUMMY_RX;
+        #ifdef CONFIG_STM32F7
+        c = readl_relaxed(port->membase + USART_DR_REC);
+        #else
 		c = readl_relaxed(port->membase + USART_DR);
+        #endif
 		flag = TTY_NORMAL;
 		port->icount.rx++;
 
@@ -517,30 +536,34 @@ static int stm32_init_port(struct stm32_port *stm32port,
 	port->ops	= &stm32_uart_ops;
 	port->dev	= &pdev->dev;
 	port->irq	= platform_get_irq(pdev, 0);
-
+    port->irq	= 37;
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	port->membase = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(port->membase))
 		return PTR_ERR(port->membase);
 	port->mapbase = res->start;
-
+    printk("iysheng %s 000 irq=%d clk=%d\n", __func__,
+        port->irq, stm32port->port.uartclk);
 	spin_lock_init(&port->lock);
 
 	stm32port->clk = devm_clk_get(&pdev->dev, NULL);
+    printk("iysheng %s 111\n", __func__);
 	if (IS_ERR(stm32port->clk))
 		return PTR_ERR(stm32port->clk);
 
 	/* Ensure that clk rate is correct by enabling the clk */
 	ret = clk_prepare_enable(stm32port->clk);
+    printk("iysheng %s 222\n", __func__);
 	if (ret)
 		return ret;
 
 	stm32port->port.uartclk = clk_get_rate(stm32port->clk);
+    printk("iysheng %s 333\n", __func__);
 	if (!stm32port->port.uartclk)
 		ret = -EINVAL;
-
-	clk_disable_unprepare(stm32port->clk);
-
+    printk("iysheng %s 444\n", __func__);
+	clk_disable_unprepare(stm32port->clk);//<iysheng@163.com>
+    printk("iysheng %s 555\n", __func__);
 	return ret;
 }
 
@@ -579,20 +602,21 @@ static int stm32_serial_probe(struct platform_device *pdev)
 {
 	int ret;
 	struct stm32_port *stm32port;
-
+    printk("iysheng %s\n", __func__);
 	stm32port = stm32_of_get_stm32_port(pdev);
 	if (!stm32port)
 		return -ENODEV;
-
+    printk("iysheng %s 000\n", __func__);
 	ret = stm32_init_port(stm32port, pdev);
+    printk("iysheng %s 001 ret=%d\n", __func__, ret);
 	if (ret)
-		return ret;
-
+		return ret;    
 	ret = uart_add_one_port(&stm32_usart_driver, &stm32port->port);
 	if (ret)
 		return ret;
-
+    printk("iysheng %s 002\n", __func__);
 	platform_set_drvdata(pdev, &stm32port->port);
+    printk("iysheng %s 003\n", __func__);
 
 	return 0;
 }
@@ -651,7 +675,7 @@ static int stm32_console_setup(struct console *co, char *options)
 	int bits = 8;
 	int parity = 'n';
 	int flow = 'n';
-
+    printk("iysheng %s 0\n", __func__);
 	if (co->index >= STM32_MAX_PORTS)
 		return -ENODEV;
 
@@ -668,7 +692,7 @@ static int stm32_console_setup(struct console *co, char *options)
 
 	if (options)
 		uart_parse_options(options, &baud, &parity, &bits, &flow);
-
+    printk("iysheng %s 1\n", __func__);
 	return uart_set_options(&stm32port->port, co, baud, parity, bits, flow);
 }
 
@@ -718,6 +742,7 @@ static int __init usart_init(void)
 		return ret;
 
 	ret = platform_driver_register(&stm32_serial_driver);
+    printk("iysheng %s\n", __func__);
 	if (ret)
 		uart_unregister_driver(&stm32_usart_driver);
 
